@@ -2,18 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Switch, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Bell, Settings, Shield, MapPin, LogOut } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProfileScreen() {
-  const [user, setUser] = useState({
-    name: 'Carmen Sánchez',
-    email: 'carmen.sanchez@gmail.com',
-    phone: '+56 9 1234 5678',
-    address: 'Av. Alemania 01160, Temuco',
-    neighborhood: 'Sector Amanecer',
-    role: 'Vecino Validado',
-    memberSince: 'Mayo 2023',
-    profileImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
-  });
+  const { user, logout } = useAuth();
   
   const [notificationSettings, setNotificationSettings] = useState({
     emergencyAlerts: true,
@@ -40,11 +32,30 @@ export default function ProfileScreen() {
       '¿Estás seguro de que deseas cerrar sesión?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Cerrar Sesión', style: 'destructive', onPress: () => console.log('Logout pressed') }
+        { 
+          text: 'Cerrar Sesión', 
+          style: 'destructive', 
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('Error', 'No se pudo cerrar la sesión');
+            }
+          }
+        }
       ]
     );
   };
 
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <Text>Cargando perfil...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -52,16 +63,22 @@ export default function ProfileScreen() {
           <View style={styles.headerContent}>
             <View style={styles.profileImageContainer}>
               <Image 
-                source={{ uri: user.profileImage }} 
+                source={{ uri: user.profileImage || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg' }} 
                 style={styles.profileImage}
               />
-              <View style={styles.verifiedBadge}>
-                <Shield size={12} color="#FFFFFF" />
-              </View>
+              {user.isVerified && (
+                <View style={styles.verifiedBadge}>
+                  <Shield size={12} color="#FFFFFF" />
+                </View>
+              )}
             </View>
             <Text style={styles.userName}>{user.name}</Text>
-            <Text style={styles.userRole}>{user.role}</Text>
-            <Text style={styles.memberSince}>Miembro desde {user.memberSince}</Text>
+            <Text style={styles.userRole}>
+              {user.isVerified ? `${user.role} Verificado` : `${user.role} (Pendiente verificación)`}
+            </Text>
+            <Text style={styles.memberSince}>
+              Miembro desde {user.createdAt.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' })}
+            </Text>
           </View>
         </View>
         
@@ -73,6 +90,13 @@ export default function ProfileScreen() {
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Nombre</Text>
                 <Text style={styles.infoValue}>{user.name}</Text>
+              </View>
+            </View>
+            <View style={styles.infoRow}>
+              <User size={18} color="#64748B" />
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>RUT</Text>
+                <Text style={styles.infoValue}>{user.rut}</Text>
               </View>
             </View>
             <View style={styles.infoRow}>
@@ -213,6 +237,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     backgroundColor: '#0A3161',
