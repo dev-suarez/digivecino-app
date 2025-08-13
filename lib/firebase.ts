@@ -11,15 +11,15 @@ export interface FirebaseConfig {
   measurementId: string;
 }
 
-// Placeholder for Firebase config - replace with your actual config
+// Configuración de Firebase extraída de variables de entorno
 export const firebaseConfig: FirebaseConfig = {
-  apiKey: "AIzaSyDrqAmVPe13I3QFOEj7X1WsXGuUvW7nH-Y",
-  authDomain: "vigivecino.firebaseapp.com",
-  projectId: "vigivecino",
-  storageBucket: "vigivecino.firebasestorage.app",
-  messagingSenderId: "857423133454",
-  appId: "1:857423133454:web:553b9c94c0591f5b87355f",
-  measurementId: "G-R97LXWDG9Q"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || '',
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || '',
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || '',
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
 };
 
 // Firebase app initialization will go here
