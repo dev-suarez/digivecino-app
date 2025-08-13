@@ -1,38 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { TriangleAlert as AlertTriangle, MapPin, Clock, ChevronRight } from 'lucide-react-native';
+import { collection, query, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-type RecentAlertsProps = {
-  isLoading: boolean;
-};
+function timeAgo(timestamp: Timestamp) {
+  const diff = Date.now() - timestamp.toDate().getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h`;
+}
 
-export default function RecentAlerts({ isLoading }: RecentAlertsProps) {
-  // Mock data for recent alerts
-  const alerts = [
-    {
-      id: '1',
-      type: 'Robo',
-      location: 'Av. Alemania 01160',
-      time: '15 min',
-      status: 'activa',
-    },
-    {
-      id: '2',
-      type: 'Sospechoso',
-      location: 'Calle Manuel Montt 850',
-      time: '32 min',
-      status: 'verificando',
-    },
-    {
-      id: '3',
-      type: 'Allanamiento',
-      location: 'Pablo Neruda 02150',
-      time: '2h',
-      status: 'resuelta',
-    },
-  ];
+export default function RecentAlerts() {
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const getStatusColor = (status) => {
+  useEffect(() => {
+    const q = query(collection(db, 'alerts'), orderBy('createdAt', 'desc'), limit(5));
+    const unsub = onSnapshot(q, snap => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setAlerts(data);
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'activa':
         return '#E63946';
@@ -45,7 +39,7 @@ export default function RecentAlerts({ isLoading }: RecentAlertsProps) {
     }
   };
 
-  const renderAlertItem = ({ item }) => (
+  const renderAlertItem = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.alertItem}>
       <View style={styles.alertHeader}>
         <View style={styles.alertTypeContainer}>
@@ -59,16 +53,18 @@ export default function RecentAlerts({ isLoading }: RecentAlertsProps) {
           <MapPin size={14} color="#64748B" />
           <Text style={styles.detailText} numberOfLines={1}>{item.location}</Text>
         </View>
-        <View style={styles.detailRow}>
-          <Clock size={14} color="#64748B" />
-          <Text style={styles.detailText}>Hace {item.time}</Text>
-        </View>
+        {item.createdAt && (
+          <View style={styles.detailRow}>
+            <Clock size={14} color="#64748B" />
+            <Text style={styles.detailText}>Hace {timeAgo(item.createdAt)}</Text>
+          </View>
+        )}
       </View>
       <ChevronRight size={16} color="#64748B" />
     </TouchableOpacity>
   );
 
-  if (isLoading) {
+  if (loading) {
     return (
       <View style={styles.container}>
         <Text style={styles.sectionTitle}>Alertas Recientes</Text>

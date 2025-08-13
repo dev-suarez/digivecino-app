@@ -5,37 +5,39 @@ import PanicButton from '@/components/PanicButton';
 import NeighborhoodStats from '@/components/NeighborhoodStats';
 import RecentAlerts from '@/components/RecentAlerts';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { auth, db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export default function HomeScreen() {
-  const [userName, setUserName] = useState('Vecino');
-  const [neighborhood, setNeighborhood] = useState('Sector Amanecer');
-  const [alertLevel, setAlertLevel] = useState('Moderado');
-  const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
 
-  // Simulate data loading
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    const unsub = onSnapshot(doc(db, 'users', uid), snap => {
+      setProfile(snap.data());
+    });
+    return unsub;
   }, []);
+
+  const userName = profile?.name ?? 'Vecino';
+  const neighborhood = profile?.neighborhood ?? 'Sector Amanecer';
+  const alertLevel = profile?.alertLevel ?? 'Moderado';
 
   const handlePanicButtonPress = () => {
     if (Platform.OS !== 'web') {
-      // On native platforms, we'd implement haptic feedback
-      // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      // On native platforms, implement haptic feedback if desired
     }
-    
+
     Alert.alert(
       '¿Activar Alerta de Emergencia?',
       'Esto notificará a todos los vecinos y autoridades de tu ubicación.',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'ACTIVAR ALERTA', 
+        {
+          text: 'ACTIVAR ALERTA',
           style: 'destructive',
           onPress: () => {
-            // Here we would trigger the actual emergency alert
             Alert.alert('Alerta Activada', 'Las autoridades han sido notificadas y están en camino.');
           }
         },
@@ -50,20 +52,20 @@ export default function HomeScreen() {
           <Shield size={24} color="#0A3161" />
           <Text style={styles.headerTitle}>VigiVecino</Text>
         </View>
-        
+
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeText}>Hola, {userName}</Text>
           <Text style={styles.neighborhoodText}>{neighborhood}</Text>
           <View style={styles.alertLevelContainer}>
             <Text style={styles.alertLevelLabel}>Nivel de Alerta:</Text>
-            <View style={[styles.alertLevelBadge, { backgroundColor: alertLevel === 'Alto' ? '#E63946' : '#FCA311' }]}>
+            <View style={[styles.alertLevelBadge, { backgroundColor: alertLevel === 'Alto' ? '#E63946' : '#FCA311' }] }>
               <Text style={styles.alertLevelText}>{alertLevel}</Text>
             </View>
           </View>
         </View>
 
         <PanicButton onPress={handlePanicButtonPress} />
-        
+
         <View style={styles.quickActions}>
           <TouchableOpacity style={styles.actionButton}>
             <Bell size={24} color="#0A3161" />
@@ -83,9 +85,9 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <NeighborhoodStats isLoading={isLoading} />
-        
-        <RecentAlerts isLoading={isLoading} />
+        <NeighborhoodStats />
+
+        <RecentAlerts />
       </ScrollView>
     </SafeAreaView>
   );
