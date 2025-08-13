@@ -1,37 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { TrendingUp, TrendingDown, TriangleAlert as AlertTriangle, Shield } from 'lucide-react-native';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-type NeighborhoodStatsProps = {
-  isLoading: boolean;
-};
+export default function NeighborhoodStats() {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-export default function NeighborhoodStats({ isLoading }: NeighborhoodStatsProps) {
-  // Mock data for statistics
-  const stats = {
-    incidents: {
-      count: 12,
-      change: -23,
-      period: 'último mes',
-    },
-    alerts: {
-      count: 8,
-      change: 15,
-      period: 'último mes',
-    },
-    response: {
-      time: '4.3 min',
-      change: -12,
-      period: 'promedio',
-    },
-    patrols: {
-      count: 18,
-      change: 30,
-      period: 'último mes',
-    },
-  };
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'stats', 'summary'), snap => {
+      setStats(snap.data());
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <View style={styles.container}>
         <Text style={styles.sectionTitle}>Estadísticas del Barrio</Text>
@@ -42,6 +27,8 @@ export default function NeighborhoodStats({ isLoading }: NeighborhoodStatsProps)
       </View>
     );
   }
+
+  if (!stats) return null;
 
   return (
     <View style={styles.container}>
@@ -132,10 +119,7 @@ export default function NeighborhoodStats({ isLoading }: NeighborhoodStatsProps)
               ) : (
                 <TrendingUp size={14} color="#2A9D8F" />
               )}
-              <Text style={[
-                styles.statChangeText,
-                styles.statPositive
-              ]}>
+              <Text style={[styles.statChangeText, styles.statPositive]}>
                 {Math.abs(stats.patrols.change)}%
               </Text>
             </View>
