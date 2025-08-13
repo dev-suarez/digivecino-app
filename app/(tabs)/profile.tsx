@@ -3,6 +3,18 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Switch, ScrollView, Al
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Bell, Settings, Shield, MapPin, LogOut } from 'lucide-react-native';
 
+interface NotificationSettings {
+  emergencyAlerts: boolean;
+  suspiciousActivity: boolean;
+  neighborhoodChat: boolean;
+  cameraAlerts: boolean;
+  soundAlerts: boolean;
+  vibrationAlerts: boolean;
+  nightModeFrom: string;
+  nightModeTo: string;
+  nightModeEnabled: boolean;
+}
+
 export default function ProfileScreen() {
   const [user, setUser] = useState({
     name: 'Carmen Sánchez',
@@ -14,8 +26,8 @@ export default function ProfileScreen() {
     memberSince: 'Mayo 2023',
     profileImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
   });
-  
-  const [notificationSettings, setNotificationSettings] = useState({
+
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
     emergencyAlerts: true,
     suspiciousActivity: true,
     neighborhoodChat: true,
@@ -26,8 +38,8 @@ export default function ProfileScreen() {
     nightModeTo: '07:00',
     nightModeEnabled: true,
   });
-  
-  const toggleSetting = (setting) => {
+
+  const toggleSetting = (setting: keyof NotificationSettings) => {
     setNotificationSettings(prev => ({
       ...prev,
       [setting]: !prev[setting]

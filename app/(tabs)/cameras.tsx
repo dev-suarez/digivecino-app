@@ -1,10 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Maximize, Play, Grid2x2 as Grid, List, RotateCcw, Wifi } from 'lucide-react-native';
 
 // Sample camera data
-const CAMERAS_DATA = [
+interface Camera {
+  id: string;
+  name: string;
+  location: string;
+  preview: string;
+  isLive: boolean;
+  isPublic: boolean;
+}
+
+const CAMERAS_DATA: Camera[] = [
   {
     id: '1',
     name: 'Cámara Entrada Principal',
@@ -40,16 +57,16 @@ const CAMERAS_DATA = [
 ];
 
 export default function CamerasScreen() {
-  const [selectedCamera, setSelectedCamera] = useState(CAMERAS_DATA[0]);
+  const [selectedCamera, setSelectedCamera] = useState<Camera>(CAMERAS_DATA[0]);
   const [gridView, setGridView] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const handleCameraSelect = (camera) => {
+  const handleCameraSelect = (camera: Camera) => {
     setSelectedCamera(camera);
     setIsFullscreen(false);
   };
 
-  const renderCameraItem = ({ item }) => (
+  const renderCameraItem = ({ item }: { item: Camera }) => (
     <TouchableOpacity
       style={[
         gridView ? styles.gridItem : styles.listItem,

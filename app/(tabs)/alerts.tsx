@@ -1,10 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Switch } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Switch,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bell, TriangleAlert as AlertTriangle, Eye, Clock, Info, Filter } from 'lucide-react-native';
 
 // Mock data for alerts
-const ALERTS_DATA = [
+type AlertType = 'Emergencia' | 'Sospecha' | 'Información';
+type AlertStatus = 'activa' | 'verificando' | 'resuelta';
+interface Alert {
+  id: string;
+  type: AlertType;
+  title: string;
+  location: string;
+  time: string;
+  status: AlertStatus;
+  description: string;
+}
+
+const ALERTS_DATA: Alert[] = [
   {
     id: '1',
     type: 'Emergencia',
@@ -12,7 +31,8 @@ const ALERTS_DATA = [
     location: 'Av. Alemania 01160',
     time: '15 min',
     status: 'activa',
-    description: 'Se reporta un robo en proceso en vivienda. Dos individuos con vestimenta oscura.',
+    description:
+      'Se reporta un robo en proceso en vivienda. Dos individuos con vestimenta oscura.',
   },
   {
     id: '2',
@@ -39,7 +59,8 @@ const ALERTS_DATA = [
     location: 'Pablo Neruda 02150',
     time: '2h',
     status: 'resuelta',
-    description: 'Vecinos reportaron intento de forzar cerradura. Carabineros atendió el llamado.',
+    description:
+      'Vecinos reportaron intento de forzar cerradura. Carabineros atendió el llamado.',
   },
   {
     id: '5',
@@ -48,21 +69,27 @@ const ALERTS_DATA = [
     location: 'Av. Recabarren 01745',
     time: '4h',
     status: 'resuelta',
-    description: 'Automóvil blanco estacionado por más de 3 horas con ocupantes en su interior.',
+    description:
+      'Automóvil blanco estacionado por más de 3 horas con ocupantes en su interior.',
   },
 ];
 
 export default function AlertsScreen() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    showEmergencies: boolean;
+    showSuspicious: boolean;
+    showInformation: boolean;
+    onlyActive: boolean;
+  }>({
     showEmergencies: true,
     showSuspicious: true,
     showInformation: true,
     onlyActive: false,
   });
-  const [expandedAlert, setExpandedAlert] = useState(null);
+  const [expandedAlert, setExpandedAlert] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredAlerts = ALERTS_DATA.filter(alert => {
+  const filteredAlerts = ALERTS_DATA.filter((alert: Alert) => {
     if (filters.onlyActive && alert.status === 'resuelta') return false;
     if (!filters.showEmergencies && alert.type === 'Emergencia') return false;
     if (!filters.showSuspicious && alert.type === 'Sospecha') return false;
@@ -70,11 +97,11 @@ export default function AlertsScreen() {
     return true;
   });
 
-  const toggleFilter = (filterName) => {
+  const toggleFilter = (filterName: keyof typeof filters) => {
     setFilters(prev => ({ ...prev, [filterName]: !prev[filterName] }));
   };
 
-  const getAlertIcon = (type) => {
+  const getAlertIcon = (type: AlertType) => {
     switch (type) {
       case 'Emergencia':
         return <AlertTriangle size={20} color="#E63946" />;
@@ -87,7 +114,7 @@ export default function AlertsScreen() {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: AlertStatus) => {
     switch (status) {
       case 'activa':
         return '#E63946';
@@ -100,7 +127,7 @@ export default function AlertsScreen() {
     }
   };
 
-  const renderAlertItem = ({ item }) => (
+  const renderAlertItem = ({ item }: { item: Alert }) => (
     <TouchableOpacity 
       style={styles.alertCard}
       onPress={() => setExpandedAlert(expandedAlert === item.id ? null : item.id)}

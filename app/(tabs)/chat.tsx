@@ -13,33 +13,36 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Send, Lock, Camera, Smile, Paperclip, Search } from 'lucide-react-native';
 
 // Mock data for chat groups
-const CHAT_GROUPS = [
-  {
-    id: '1',
-    name: 'Sector Amanecer',
-    unread: 3,
-    isOfficial: true,
-  },
-  {
-    id: '2',
-    name: 'Calle Manuel Montt',
-    unread: 0,
-    isOfficial: false,
-  },
-  {
-    id: '3',
-    name: 'Coordinación Seguridad',
-    unread: 1,
-    isOfficial: true,
-  },
+interface ChatGroup {
+  id: string;
+  name: string;
+  unread: number;
+  isOfficial: boolean;
+}
+
+const CHAT_GROUPS: ChatGroup[] = [
+  { id: '1', name: 'Sector Amanecer', unread: 3, isOfficial: true },
+  { id: '2', name: 'Calle Manuel Montt', unread: 0, isOfficial: false },
+  { id: '3', name: 'Coordinación Seguridad', unread: 1, isOfficial: true },
 ];
 
 // Mock messages for the active chat
-const MESSAGES = [
+type MessageRole = 'vecino' | 'seguridad' | 'carabinero';
+interface Message {
+  id: string;
+  sender: string;
+  text: string;
+  timestamp: string;
+  isUser: boolean;
+  role: MessageRole;
+}
+
+const MESSAGES: Message[] = [
   {
     id: '1',
     sender: 'Juan Pérez',
-    text: 'Hola vecinos, quería consultar si alguien más vio un auto sospechoso por la calle principal hacia las 14:00 hrs.',
+    text:
+      'Hola vecinos, quería consultar si alguien más vio un auto sospechoso por la calle principal hacia las 14:00 hrs.',
     timestamp: '14:35',
     isUser: false,
     role: 'vecino',
@@ -71,7 +74,8 @@ const MESSAGES = [
   {
     id: '5',
     sender: 'Ana Morales',
-    text: 'Confirmo que la patrulla ya está en el sector realizando un recorrido preventivo.',
+    text:
+      'Confirmo que la patrulla ya está en el sector realizando un recorrido preventivo.',
     timestamp: '14:48',
     isUser: false,
     role: 'carabinero',
@@ -79,11 +83,11 @@ const MESSAGES = [
 ];
 
 export default function ChatScreen() {
-  const [activeChat, setActiveChat] = useState(CHAT_GROUPS[0]);
+  const [activeChat, setActiveChat] = useState<ChatGroup>(CHAT_GROUPS[0]);
   const [message, setMessage] = useState('');
   const [showGroups, setShowGroups] = useState(true);
 
-  const getRoleColor = (role) => {
+  const getRoleColor = (role: MessageRole) => {
     switch (role) {
       case 'seguridad':
         return '#0A3161';
@@ -94,7 +98,7 @@ export default function ChatScreen() {
     }
   };
 
-  const renderChatGroup = ({ item }) => (
+  const renderChatGroup = ({ item }: { item: ChatGroup }) => (
     <TouchableOpacity
       style={[
         styles.chatGroupItem,
@@ -123,7 +127,7 @@ export default function ChatScreen() {
     </TouchableOpacity>
   );
 
-  const renderMessage = ({ item }) => (
+  const renderMessage = ({ item }: { item: Message }) => (
     <View style={[
       styles.messageContainer,
       item.isUser ? styles.userMessageContainer : styles.otherMessageContainer,
@@ -360,9 +364,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     marginBottom: 4,
-  },
-  otherMessageContent: {
-    backgroundColor: '#FFFFFF',
   },
   messageTimestamp: {
     fontSize: 10,

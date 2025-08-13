@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Layers, Filter, Navigation, CircleAlert as AlertCircle } from 'lucide-react-native';
 import MapPlaceholder from '@/components/MapPlaceholder';
@@ -8,10 +15,18 @@ import { LinearGradient } from 'expo-linear-gradient';
 export default function MapScreen() {
   const [mapType, setMapType] = useState('Estándar');
   const [filterActive, setFilterActive] = useState(false);
-  const [selectedIncident, setSelectedIncident] = useState(null);
-  
+  interface Incident {
+    id: number;
+    type: string;
+    location: string;
+    time: string;
+    status: string;
+  }
+
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+
   // Mock incidents data
-  const incidents = [
+  const incidents: Incident[] = [
     { id: 1, type: 'Robo', location: 'Av. Alemania 01160', time: '10:30', status: 'Reportado' },
     { id: 2, type: 'Sospechoso', location: 'Calle Manuel Montt 850', time: '11:45', status: 'En revisión' },
     { id: 3, type: 'Allanamiento', location: 'Pablo Neruda 02150', time: '12:15', status: 'Atendido' },
