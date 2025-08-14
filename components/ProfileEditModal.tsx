@@ -58,7 +58,7 @@ export default function ProfileEditModal({ visible, onClose }: ProfileEditModalP
     setIsSaving(true);
     try {
       await updateProfile(formData);
-      Alert.alert('Perfil Actualizado', 'Tu información ha sido actualizada exitosamente.', [
+      Alert.alert('Datos guardados', 'Tu perfil se actualizó correctamente.', [
         { text: 'OK', onPress: onClose },
       ]);
     } catch (error) {
