@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Switch, ScrollView, Al
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Bell, Settings, Shield, MapPin, LogOut } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import ProfileEditModal from '@/components/ProfileEditModal';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -18,6 +19,7 @@ export default function ProfileScreen() {
     nightModeTo: '07:00',
     nightModeEnabled: true,
   });
+  const [editModalVisible, setEditModalVisible] = useState(false);
   
   const toggleSetting = (setting) => {
     setNotificationSettings(prev => ({
@@ -128,7 +130,7 @@ export default function ProfileScreen() {
               </View>
             </View>
           </View>
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity style={styles.editButton} onPress={() => setEditModalVisible(true)}>
             <Text style={styles.editButtonText}>Editar Información</Text>
           </TouchableOpacity>
         </View>
@@ -226,6 +228,12 @@ export default function ProfileScreen() {
           <Text style={styles.versionText}>VigiVecino v1.0.0</Text>
         </View>
       </ScrollView>
+      {user && (
+        <ProfileEditModal
+          visible={editModalVisible}
+          onClose={() => setEditModalVisible(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }
