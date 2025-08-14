@@ -6,6 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
+  User as FirebaseUser,
 } from 'firebase/auth';
 
 import {
@@ -52,7 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Firebase auth state listener
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
-          await loadUserProfile(firebaseUser.uid);
+          await loadUserProfile(firebaseUser);
         } else {
           setAuthState({
             user: null,
@@ -73,15 +74,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const loadUserProfile = async (uid: string) => {
+  const loadUserProfile = async (firebaseUser: FirebaseUser) => {
     try {
-      const userDoc = await getDoc(doc(db, 'users', uid));
+      const uid = firebaseUser.uid;
+      const userRef = doc(db, 'users', uid);
+      const userDoc = await getDoc(userRef);
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        let email = userData.email ?? firebaseUser.email ?? '';
+        if (!userData.email && firebaseUser.email) {
+          await updateDoc(userRef, { email });
+        }
         const user: User = {
           uid,
-          email: userData.email,
+          email,
           name: userData.name,
           rut: userData.rut,
           phone: userData.phone,
