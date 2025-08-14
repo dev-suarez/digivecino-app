@@ -174,6 +174,7 @@ export default function CamerasScreen() {
               key={gridView ? 'grid' : 'list'}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.cameraList}
+              columnWrapperStyle={gridView ? styles.gridRow : null}
             />
           </View>
         )}
@@ -371,6 +372,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#1E293B',
     padding: 8,
+  },
+  gridRow: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
   },
   listItem: {
     flexDirection: 'row',
