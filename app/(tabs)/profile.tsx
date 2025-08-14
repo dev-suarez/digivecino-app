@@ -231,7 +231,6 @@ export default function ProfileScreen() {
       {user && (
         <ProfileEditModal
           visible={editModalVisible}
-          user={user}
           onClose={() => setEditModalVisible(false)}
         />
       )}

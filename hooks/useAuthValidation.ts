@@ -132,6 +132,34 @@ export function useAuthValidation() {
     return isValid;
   };
 
+  const validateProfileForm = (formData: any): boolean => {
+    const newErrors: ValidationErrors = {};
+    let isValid = true;
+
+    if (!formData.name?.trim()) {
+      newErrors.name = 'El nombre es requerido';
+      isValid = false;
+    }
+
+    if (!formData.phone?.trim()) {
+      newErrors.phone = 'El teléfono es requerido';
+      isValid = false;
+    }
+
+    if (!formData.address?.trim()) {
+      newErrors.address = 'La dirección es requerida';
+      isValid = false;
+    }
+
+    if (!formData.neighborhood?.trim()) {
+      newErrors.neighborhood = 'El barrio es requerido';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const clearError = (field: string) => {
     setErrors(prev => {
       const newErrors = { ...prev };
@@ -151,6 +179,7 @@ export function useAuthValidation() {
     formatRUT,
     validateLoginForm,
     validateRegisterForm,
+    validateProfileForm,
     clearError,
     clearAllErrors,
   };
