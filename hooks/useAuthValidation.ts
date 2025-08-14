@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 interface ValidationErrors {
   [key: string]: string;
@@ -160,17 +160,17 @@ export function useAuthValidation() {
     return isValid;
   };
 
-  const clearError = (field: string) => {
+  const clearError = useCallback((field: string) => {
     setErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors[field];
       return newErrors;
     });
-  };
+  }, []);
 
-  const clearAllErrors = () => {
+  const clearAllErrors = useCallback(() => {
     setErrors({});
-  };
+  }, []);
 
   return {
     errors,
